@@ -265,6 +265,36 @@ Audit logs are retained for 365 days and include:
 - All deployment events
 - All backup and restore operations
 
+### Log Aggregator JSONL Export
+
+For offline or air-gapped analysis, `tools/log_aggregator.py` can emit
+machine-readable JSON Lines records:
+
+```bash
+python tools/log_aggregator.py --input "/var/log/tent/*.log" --format jsonl --output aggregated.jsonl
+```
+
+Each line is one JSON object with this schema:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timestamp` | number or null | Parsed Unix timestamp in seconds. Null when the line has no parseable timestamp. |
+| `level` | string | Normalized lowercase log level such as `debug`, `info`, `warn`, `error`, or `unknown`. |
+| `source` | string | Parsed service/source name. Falls back to `unknown`; parser warnings use `log_aggregator`. |
+| `message` | string | Human-readable message or request text. |
+| `metadata` | object | Parser-specific fields plus `format`, `source_file`, `line_number`, and `sequence`. |
+
+Records with parsed timestamps are ordered by timestamp across all input files.
+Records without timestamps keep ingestion order after timestamped records.
+Unparseable lines are emitted as warning records with
+`metadata.warning = true` so downstream tools do not silently lose input.
+
+Example:
+
+```json
+{"timestamp":1704067201,"level":"info","source":"worker","message":"2024-01-01 00:00:01 INFO [worker] early text message","metadata":{"format":"text","source_file":"worker.log","line_number":12,"sequence":1,"raw":"2024-01-01 00:00:01 INFO [worker] early text message"}}
+```
+
 ### Security Scanning
 
 | Scan Type | Frequency | Tool |
