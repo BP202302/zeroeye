@@ -30,6 +30,42 @@ WARNING: The seed data includes test API keys and passwords that are publicly
 visible in this repository. Do NOT use these credentials in production.
 The seed data is intended for local development only.
 
+## Deterministic Test Data
+
+Use `tools/data_generator.py` when you need reproducible market, user, order,
+trade, tick, and candle fixtures. Pass `--seed` to make two runs with the same
+arguments produce byte-for-byte identical files:
+
+```bash
+python tools/data_generator.py \
+  --output-dir data/test/seed-42 \
+  --seed 42 \
+  --format both \
+  --users 25 \
+  --orders 100 \
+  --trades 100
+```
+
+Generated JSON output includes `metadata.json`, and CSV output includes
+`metadata.csv`; both record the seed and generation arguments used for that
+fixture set.
+
+If you want a fresh random dataset but still need to reproduce it later, omit
+`--seed` and pass `--print-seed`:
+
+```bash
+python tools/data_generator.py --output-dir data/test/random-run --print-seed
+```
+
+The command prints the effective seed before writing files. Re-run with that
+value as `--seed <value>` to regenerate the same fixture set.
+
+To verify deterministic behavior across multiple seeds:
+
+```bash
+python tools/validate_data_generator_seed.py
+```
+
 ## Migration Files
 
 Migration files follow the naming convention: `{YYYYMMDDHHMMSS}_{description}.sql`
