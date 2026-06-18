@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-06-18T01:48:12.444283+00:00",
+  "commit": "9086cced",
+  "diagnostic_logd": [
+    "diagnostic\\build-9086cced-part001.logd",
+    "diagnostic\\build-9086cced-part002.logd",
+    "diagnostic\\build-9086cced-part003.logd",
+    "diagnostic\\build-9086cced-part004.logd",
+    "diagnostic\\build-9086cced-part005.logd",
+    "diagnostic\\build-9086cced-part006.logd",
+    "diagnostic\\build-9086cced-part007.logd",
+    "diagnostic\\build-9086cced-part008.logd",
+    "diagnostic\\build-9086cced-part009.logd",
+    "diagnostic\\build-9086cced-part010.logd",
+    "diagnostic\\build-9086cced-part011.logd",
+    "diagnostic\\build-9086cced-part012.logd",
+    "diagnostic\\build-9086cced-part013.logd"
+  ],
+  "diagnostic_logd_error": null,
+  "message_blocker": null,
+  "chunked": true,
+  "chunk_size_bytes": 41943040,
+  "password": "9a8587ffb7677716e957",
+  "decrypt_command": "encryptly unpack diagnostic\\build-9086cced.logd <outdir> --password 9a8587ffb7677716e957",
+  "total_modules": 1,
+  "passed": 1,
+  "failed": 0,
+  "modules": [
+    {
+      "name": "market",
+      "status": "PASS",
+      "elapsed_seconds": 1.354,
+      "artifact": "C:\\Users\\GP GAMERS\\Documents\\Codex\\2026-06-05\\eres-mi-agente-aut-nomo-de\\work\\zeroeye\\market\\market",
+      "output": ""
+    }
+  ],
+  "pr_note": "Include the encrypted diagnostic logd artifact(s): diagnostic\\build-9086cced-part001.logd, diagnostic\\build-9086cced-part002.logd, diagnostic\\build-9086cced-part003.logd, diagnostic\\build-9086cced-part004.logd, diagnostic\\build-9086cced-part005.logd, diagnostic\\build-9086cced-part006.logd, diagnostic\\build-9086cced-part007.logd, diagnostic\\build-9086cced-part008.logd, diagnostic\\build-9086cced-part009.logd, diagnostic\\build-9086cced-part010.logd, diagnostic\\build-9086cced-part011.logd, diagnostic\\build-9086cced-part012.logd, diagnostic\\build-9086cced-part013.logd. The encrypted .logd is the required diagnostic content for PR review; this JSON file is metadata. Maintainers may ask you to remove these diagnostic artifacts before merging."
+}
