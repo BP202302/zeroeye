@@ -34,6 +34,7 @@ def prepare_sources() -> None:
         "V41_ACQUIRE_SRC": "research/data/acquire_v41_futures_features.py",
         "V59_ACQUIRE_SRC": "research/data/acquire_v59_positioning.py",
         "V89_DIAG_SRC": "research/search/v89_v88_gate_diagnostics.py",
+        "V90_SRC": "research/search/v90_v88_dense_exit_screen.py",
     }
     for env_name, relpath in mapping.items():
         write_env_file(env_name, relpath)
@@ -163,6 +164,16 @@ def main() -> None:
             check=True,
         )
         log("V89_DIAG_FINISHED")
+        return
+
+    if mode == "v90":
+        log("V90_START")
+        subprocess.run(
+            [sys.executable, "-u", "research/search/v90_v88_dense_exit_screen.py"],
+            cwd=ROOT,
+            check=True,
+        )
+        log("V90_FINISHED")
         return
 
     n = int(os.environ.get("V88_N", "120000"))
