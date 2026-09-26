@@ -33,6 +33,7 @@ def prepare_sources() -> None:
         "V88_SRC": "research/search/v88_v84_quality_ensemble.py",
         "V41_ACQUIRE_SRC": "research/data/acquire_v41_futures_features.py",
         "V59_ACQUIRE_SRC": "research/data/acquire_v59_positioning.py",
+        "V89_DIAG_SRC": "research/search/v89_v88_gate_diagnostics.py",
     }
     for env_name, relpath in mapping.items():
         write_env_file(env_name, relpath)
@@ -153,6 +154,17 @@ def main() -> None:
     acquire_data()
 
     OUT.mkdir(parents=True, exist_ok=True)
+    mode = os.environ.get("RUN_MODE", "v88").strip().lower()
+    if mode == "diag":
+        log("V89_DIAG_START")
+        subprocess.run(
+            [sys.executable, "-u", "research/search/v89_v88_gate_diagnostics.py"],
+            cwd=ROOT,
+            check=True,
+        )
+        log("V89_DIAG_FINISHED")
+        return
+
     n = int(os.environ.get("V88_N", "120000"))
     seeds = [
         int(x.strip())
