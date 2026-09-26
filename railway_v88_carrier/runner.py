@@ -36,6 +36,7 @@ def prepare_sources() -> None:
         "V89_DIAG_SRC": "research/search/v89_v88_gate_diagnostics.py",
         "V90_SRC": "research/search/v90_v88_dense_exit_screen.py",
         "V91_SRC": "research/search/v91_causal_quantile_density_snapback.py",
+        "EXPERIMENT_SRC": "research/search/runtime_experiment.py",
     }
     for env_name, relpath in mapping.items():
         write_env_file(env_name, relpath)
@@ -185,6 +186,16 @@ def main() -> None:
             check=True,
         )
         log("V91_FINISHED")
+        return
+
+    if mode == "experiment":
+        log("EXPERIMENT_START")
+        subprocess.run(
+            [sys.executable, "-u", "research/search/runtime_experiment.py"],
+            cwd=ROOT,
+            check=True,
+        )
+        log("EXPERIMENT_FINISHED")
         return
 
     n = int(os.environ.get("V88_N", "120000"))
