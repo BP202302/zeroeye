@@ -131,6 +131,7 @@ const REFRESH_LOCK = 'tot_auth_refresh';
 const REFRESH_THRESHOLD = 60; // seconds before expiry to attempt refresh
 
 let currentTokens: AuthTokens | null = null;
+let tokensPersisted = false;
 let currentUser: User | null = null;
 let refreshTimer: number | null = null;
 let refreshInFlight: Promise<AuthTokens | null> | null = null;
@@ -162,9 +163,11 @@ function getTokenExpiry(token: string): number {
 
 function storeTokens(tokens: AuthTokens): void {
   currentTokens = tokens;
+  tokensPersisted = false;
   sessionVersion++;
   try {
     localStorage.setItem(TOKEN_KEY, JSON.stringify(tokens));
+    tokensPersisted = true;
   } catch {
     // localStorage may be unavailable in some environments
   }
@@ -172,6 +175,7 @@ function storeTokens(tokens: AuthTokens): void {
 
 function clearStoredTokens(): void {
   currentTokens = null;
+  tokensPersisted = false;
   sessionVersion++;
   stopRefreshTimer();
   try {
@@ -198,6 +202,7 @@ function loadStoredTokens(): AuthTokens | null {
   const { tokens } = readStoredTokens();
   if (tokens && !isTokenExpired(tokens.accessToken)) {
     currentTokens = tokens;
+    tokensPersisted = true;
     return tokens;
   }
   return null;
@@ -216,6 +221,7 @@ function synchronizeStoredSession(): void {
   const stored = readStoredTokens();
   if (!stored.available || sameTokens(currentTokens, stored.tokens)) return;
   currentTokens = stored.tokens;
+  tokensPersisted = stored.tokens !== null;
   sessionVersion++;
   stopRefreshTimer();
   currentUser = null;
@@ -334,6 +340,14 @@ export async function logout(): Promise<void> {
 
 export function refreshTokens(): Promise<AuthTokens | null> {
   if (refreshInFlight) return refreshInFlight;
+  const stored = readStoredTokens();
+  // A storage event may still be queued after another tab logged out. Only
+  // trust absence as invalidation if this tab previously persisted its tokens;
+  // failed writes (e.g. quota errors) must retain the memory-only fallback.
+  if (tokensPersisted && stored.available && !sameTokens(currentTokens, stored.tokens)) {
+    synchronizeStoredSession();
+    return Promise.resolve(currentTokens);
+  }
   // An expired access token can still carry a usable refresh credential.
   const tokens = currentTokens || readStoredTokens().tokens;
   if (!tokens?.refreshToken) return Promise.resolve(null);

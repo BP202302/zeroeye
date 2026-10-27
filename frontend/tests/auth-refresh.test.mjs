@@ -29,6 +29,7 @@ function browser({
   channel = true,
   storage = true,
   storageEvents = true,
+  writeStorage = true,
 } = {}) {
   const data = new Map(),
     tabs = [],
@@ -65,6 +66,7 @@ function browser({
           return data.get(key) ?? null;
         },
         setItem(key, value) {
+          if (!writeStorage) throw Error("quota exceeded");
           if (!storage) throw Error("disabled");
           const oldValue = data.get(key) ?? null;
           data.set(key, value);
@@ -479,3 +481,22 @@ for (const succeed of [false, true])
       value.accessToken,
     );
   });
+
+test("a delayed remote logout cannot be undone by a stale tab starting refresh", async () => {
+  const env = browser({channel:false,storageEvents:false});
+  const initial=tokens("initial"), fresh=tokens("fresh"); let calls=0;
+  const post=async path=>path==="/auth/login"?{data:{tokens:initial,user:{id:"u"}}}:(calls++,{data:{tokens:fresh}});
+  const a=await env.tab(post), b=await env.tab(post);
+  await signIn(a); assert.equal(b.auth.isAuthenticated(),true);
+  await a.auth.logout();
+  assert.equal(await b.auth.refreshTokens(),null);
+  assert.equal(calls,0);
+  assert.equal(b.auth.getAccessToken(),null);
+  assert.equal(env.data.has("tot_auth_tokens"),false);
+});
+test("readable storage with rejected writes still permits memory-only refresh", async () => {
+  const env=browser({writeStorage:false}), fresh=tokens("fresh"); let calls=0;
+  const t=await env.tab(async path=>path==="/auth/login"?{data:{tokens:tokens("initial"),user:{id:"u"}}}:(calls++,{data:{tokens:fresh}}));
+  await signIn(t); assert.equal((await t.auth.refreshTokens()).accessToken,fresh.accessToken);
+  assert.equal(t.auth.getAccessToken(),fresh.accessToken); assert.equal(calls,1);
+});
