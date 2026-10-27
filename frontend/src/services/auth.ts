@@ -359,7 +359,7 @@ export function refreshTokens(): Promise<AuthTokens | null> {
     const latest = readStoredTokens();
     if (persisted.available && latest.available &&
         (!sameTokens(persisted.tokens, latest.tokens) ||
-         (latest.tokens !== null && !sameTokens(tokens, latest.tokens)))) {
+         (tokensPersisted && latest.tokens !== null && !sameTokens(tokens, latest.tokens)))) {
       // A lock holder or a new login already changed the session, even if
       // the asynchronous storage notification has not reached this tab yet.
       synchronizeStoredSession();

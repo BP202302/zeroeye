@@ -500,3 +500,17 @@ test("readable storage with rejected writes still permits memory-only refresh", 
   await signIn(t); assert.equal((await t.auth.refreshTokens()).accessToken,fresh.accessToken);
   assert.equal(t.auth.getAccessToken(),fresh.accessToken); assert.equal(calls,1);
 });
+
+test("a rejected storage write cannot replace the new memory login with older stored tokens", async () => {
+  const env = browser({writeStorage:false});
+  const initial = tokens("new-login"), fresh = tokens("refreshed-login");
+  env.data.set("tot_auth_tokens",JSON.stringify(tokens("old-account")));
+  let calls = 0;
+  const t = await env.tab(async path => path === "/auth/login"
+    ? {data:{tokens:initial,user:{id:"new-user"}}}
+    : (calls++,{data:{tokens:fresh}}));
+  await signIn(t);
+  assert.equal((await t.auth.refreshTokens()).accessToken,fresh.accessToken);
+  assert.equal(t.auth.getAccessToken(),fresh.accessToken);
+  assert.equal(calls,1);
+});
